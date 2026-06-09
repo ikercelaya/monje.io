@@ -71,7 +71,24 @@
   html.chatting .pill-ic{width:28px;height:28px;background:rgba(199,255,46,.22)}
   html.chatting .pill-ic svg{width:15px;height:15px}
   html.chatting .pill-tx b{font-size:13px}
-  @media(max-width:560px){html.chatting .pin{padding:74px 16px 20px}html.chatting .orb-wrap{width:62px;height:62px;margin-bottom:4px}}
+  @media(max-width:560px){
+    html.chatting .pin{padding:74px 16px 16px}
+    html.chatting .orb-wrap{width:62px;height:62px;margin-bottom:4px}
+    html.chatting .stage{max-width:none;width:100%;gap:0}
+    html.chatting #chat{margin-bottom:8px}
+    html.chatting .pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 8px}
+    html.chatting .pills .pill{width:100%;justify-content:flex-start;padding:7px 9px;border-radius:14px;gap:8px;min-height:42px}
+    html.chatting .pill-ic{width:28px;height:28px}
+    html.chatting .pill-tx b{font-size:12.5px;line-height:1.05;white-space:normal}
+    html.chatting.kb .pin{padding-top:58px;padding-bottom:10px}
+    html.chatting.kb .orb-wrap{display:none}
+    html.chatting.kb #chat{margin-bottom:6px}
+    html.chatting.kb .pills{gap:6px;margin-bottom:7px}
+    html.chatting.kb .pills .pill{min-height:36px;padding:5px 8px;border-radius:12px}
+    html.chatting.kb .pill-ic{width:24px;height:24px}
+    html.chatting.kb .pill-ic svg{width:13px;height:13px}
+    html.chatting.kb .pill-tx b{font-size:11.5px}
+  }
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
   /* Orbe = vídeo de la esfera: el interior es plasma verde volumétrico que se revuelve (vida 3D real,
      no iluminación superficial). La cara no gira. Al pasar el cursor el interior acelera y el orbe
@@ -183,15 +200,17 @@
     .nav-right{gap:8px}.btn-fichar,.btn-contacta{font-size:12px;padding:9px 13px;white-space:nowrap}.logo{font-size:21px}
     /* titular en UNA línea, escalando con el ancho */
     h1{white-space:nowrap;font-size:clamp(15px,5vw,30px);line-height:1.1;max-width:none}
-    .eyebrow{margin-bottom:10px}.eb-full{display:none}.eb-short{display:block}.stage{margin:14px auto 0}.note{font-size:12px;margin-top:10px;line-height:1.45}
+    .eyebrow{margin-bottom:10px}.eb-full{display:none}.eb-short{display:block}.stage{width:calc(100vw - 32px);margin:14px auto 0}.note{font-size:12px;margin-top:10px;line-height:1.45}
     /* input: texto más pequeño para que entre el placeholder */
     form.composer{padding:7px 7px 7px 18px}
     form.composer input{font-size:15px}
     .send{width:44px;height:44px}
-    /* chips en móvil: 2×2 (icono + título + descripción) */
+    /* chips en móvil: 2×2 compactos para que no se rompan con teclado */
     .pills{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .pills .pill{padding:10px 10px;gap:9px}
-    .pill-ic{width:34px;height:34px}.pill-ic svg{width:18px;height:18px}
+    .pills .pill{padding:9px 10px;gap:8px;min-height:48px}
+    .pill-ic{width:32px;height:32px}.pill-ic svg{width:17px;height:17px}
+    .pill-tx b{font-size:12.5px;line-height:1.05;white-space:normal}
+    .pill-tx span{display:none}
     html.gamified .intro-hint{top:calc(50% + 128px)}
     /* móvil: dos grupos con aire — arriba orbe+características+pregunta, abajo Alex+input+chips.
        padding-bottom amplio para que la nota no choque con los CTAs flotantes */
