@@ -107,7 +107,18 @@
   /* --- iOS: el teclado encoge el viewport visible. Ajustamos la altura real (visualViewport)
      para que el chat no se rompa, y ocultamos los CTAs flotantes mientras se escribe. --- */
   var vv=window.visualViewport;
-  function setVVH(){ html.style.setProperty('--vvh',(vv?vv.height:window.innerHeight)+'px'); }
+  var keyboardActive=false;
+  function setVVH(){
+    var h=vv?vv.height:window.innerHeight;
+    var top=vv?vv.offsetTop:0;
+    var bottom=vv?Math.max(0,window.innerHeight-h-top):0;
+    if(keyboardActive && window.matchMedia('(max-width:760px)').matches && h>window.innerHeight*.72){
+      h=Math.round(window.innerHeight*.56);
+      bottom=0;
+    }
+    html.style.setProperty('--vvh',h+'px');
+    html.style.setProperty('--vvb',bottom+'px');
+  }
   function settleVVH(){
     setVVH();
     requestAnimationFrame(setVVH);
@@ -121,6 +132,7 @@
   var promptEl=document.getElementById('prompt');
   if(promptEl){
     promptEl.addEventListener('focus',function(){
+      keyboardActive=true;
       html.classList.add('kb');
       settleVVH();
       // en táctil (móvil/tablet): al tocar el input entramos ya al layout fijo de chat,
@@ -128,7 +140,7 @@
       if((window.matchMedia('(max-width:760px)').matches || window.matchMedia('(pointer:coarse)').matches) && !html.classList.contains('chatting')) window.__monjeEnterChat();
       if(html.classList.contains('chatting')) window.scrollTo(0,0);
     });
-    promptEl.addEventListener('blur',function(){ html.classList.remove('kb'); setVVH(); });
+    promptEl.addEventListener('blur',function(){ keyboardActive=false; html.classList.remove('kb'); settleVVH(); });
   }
 })();
 
