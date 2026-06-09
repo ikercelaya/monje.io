@@ -80,9 +80,11 @@
     html.chatting .pills .pill{width:100%;justify-content:flex-start;padding:7px 9px;border-radius:14px;gap:8px;min-height:42px}
     html.chatting .pill-ic{width:28px;height:28px}
     html.chatting .pill-tx b{font-size:12.5px;line-height:1.05;white-space:normal}
-    html.chatting.kb .pin{padding-top:58px;padding-bottom:10px}
+    html.chatting.kb .pin{justify-content:flex-end;padding:18px 16px calc(118px + env(safe-area-inset-bottom))}
+    html.chatting.kb .hero-inner{flex:0 0 auto;min-height:0;justify-content:flex-end}
+    html.chatting.kb .stage{flex:0 0 auto;margin:0 auto;width:100%}
     html.chatting.kb .orb-wrap{display:none}
-    html.chatting.kb #chat{margin-bottom:6px}
+    html.chatting.kb #chat{display:none}
     html.chatting.kb .pills{gap:6px;margin-bottom:7px}
     html.chatting.kb .pills .pill{min-height:36px;padding:5px 8px;border-radius:12px}
     html.chatting.kb .pill-ic{width:24px;height:24px}

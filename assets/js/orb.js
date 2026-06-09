@@ -108,6 +108,12 @@
      para que el chat no se rompa, y ocultamos los CTAs flotantes mientras se escribe. --- */
   var vv=window.visualViewport;
   function setVVH(){ html.style.setProperty('--vvh',(vv?vv.height:window.innerHeight)+'px'); }
+  function settleVVH(){
+    setVVH();
+    requestAnimationFrame(setVVH);
+    setTimeout(setVVH,80);
+    setTimeout(setVVH,260);
+  }
   setVVH();
   if(vv){ vv.addEventListener('resize',setVVH); vv.addEventListener('scroll',setVVH); }
   window.addEventListener('resize',setVVH);
@@ -116,6 +122,7 @@
   if(promptEl){
     promptEl.addEventListener('focus',function(){
       html.classList.add('kb');
+      settleVVH();
       // en táctil (móvil/tablet): al tocar el input entramos ya al layout fijo de chat,
       // así el teclado no descoloca la intro scrollable.
       if((window.matchMedia('(max-width:760px)').matches || window.matchMedia('(pointer:coarse)').matches) && !html.classList.contains('chatting')) window.__monjeEnterChat();
