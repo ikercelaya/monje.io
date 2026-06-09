@@ -109,11 +109,12 @@
   var vv=window.visualViewport;
   var keyboardActive=false;
   function setVVH(){
-    var h=vv?vv.height:window.innerHeight;
+    var full=window.innerHeight;
+    var h=keyboardActive && vv ? vv.height : full;
     var top=vv?vv.offsetTop:0;
-    var bottom=vv?Math.max(0,window.innerHeight-h-top):0;
+    var bottom=keyboardActive && vv?Math.max(0,full-h-top):0;
     if(keyboardActive && window.matchMedia('(max-width:760px)').matches && h>window.innerHeight*.72){
-      h=Math.round(window.innerHeight*.56);
+      h=Math.round(window.innerHeight*.78);
       bottom=0;
     }
     html.style.setProperty('--vvh',h+'px');
@@ -124,6 +125,8 @@
     requestAnimationFrame(setVVH);
     setTimeout(setVVH,80);
     setTimeout(setVVH,260);
+    setTimeout(setVVH,520);
+    setTimeout(setVVH,900);
   }
   setVVH();
   if(vv){ vv.addEventListener('resize',setVVH); vv.addEventListener('scroll',setVVH); }

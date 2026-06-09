@@ -74,8 +74,8 @@
   @media(max-width:560px){
     html.chatting body{height:var(--vvh,100svh)}
     html.chatting #hero{height:var(--vvh,100svh)}
-    html.chatting .pin{position:fixed;height:var(--vvh,100svh);bottom:auto;padding:74px 16px calc(112px + env(safe-area-inset-bottom))}
-    html.chatting .hero-inner{height:100%;flex:1 1 auto;min-height:0}
+    html.chatting .pin{position:fixed;height:var(--vvh,100svh);bottom:auto;padding:70px 16px calc(18px + env(safe-area-inset-bottom))}
+    html.chatting .hero-inner{height:100%;flex:1 1 auto;min-height:0;align-items:stretch}
     html.chatting .orb-wrap{display:none}
     html.chatting .corner-cta{display:none}
     html.chatting .stage{flex:1 1 auto;max-width:none;width:100%;height:100%;min-height:0;margin:0;gap:0}
@@ -85,7 +85,7 @@
     html.chatting .pill-ic{width:28px;height:28px}
     html.chatting .pill-tx b{font-size:12.5px;line-height:1.05;white-space:normal}
     html.chatting form.composer{flex:0 0 auto}
-    html.chatting.kb .pin{padding-top:54px;padding-bottom:10px}
+    html.chatting.kb .pin{padding-top:54px;padding-bottom:8px}
     html.chatting.kb #chat{display:flex;min-height:68px;margin-bottom:6px;padding-bottom:6px}
     html.chatting.kb .pills{gap:6px;margin-bottom:7px}
     html.chatting.kb .pills .pill{min-height:36px;padding:5px 8px;border-radius:12px}
