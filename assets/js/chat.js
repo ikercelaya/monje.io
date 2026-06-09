@@ -20,18 +20,19 @@
 
   /* --- UI --- */
   // Mini-avatar (foto de Monje) junto a cada burbuja del bot → refuerza "hay una persona detrás".
+  function scrollChat(){requestAnimationFrame(function(){chat.scrollTop=chat.scrollHeight;});}
   function botRow(node){var r=document.createElement('div');r.className='row bot-row';
     var a=document.createElement('span');a.className='bubble-ava';a.innerHTML='<img src="assets/img/avatar.jpg" alt="Monje">';
     r.appendChild(a);r.appendChild(node);return r;}
   function add(t,w){var m=document.createElement('div');m.className='msg '+w;m.innerHTML=t;
-    var node=(w==='bot')?botRow(m):m;chat.appendChild(node);node.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    var node=(w==='bot')?botRow(m):m;chat.appendChild(node);scrollChat();}
   function typing(){var d=document.createElement('div');d.className='typing';d.innerHTML='<span></span><span></span><span></span>';
-    var row=botRow(d);chat.appendChild(row);row.scrollIntoView({behavior:'smooth',block:'nearest'});return row;}
+    var row=botRow(d);chat.appendChild(row);scrollChat();return row;}
   // Tarjeta de reserva. Se reutiliza: en cada nueva oferta se reposiciona al final (reaparece).
   function showCTA(){
     if(!ctaCard){ ctaCard=document.createElement('div');ctaCard.className='cta-card';
       ctaCard.innerHTML='<div><h3>Sigamos tú y yo, 20 minutos.</h3><p>Hablas con quien va a estar en tu negocio · gratis · sin compromiso</p></div><a class="cta-btn" href="https://calendly.com/monje-io" target="_blank" rel="noopener">Reservar mi llamada →</a>'; }
-    chat.appendChild(ctaCard);ctaCard.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    chat.appendChild(ctaCard);scrollChat();}
 
   /* --- helpers --- */
   function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -78,6 +79,6 @@
     stage++; busy=false;
   }
 
-  form.addEventListener('submit',function(e){e.preventDefault();var v=input.value.trim();if(!v)return;input.value='';handle(v,null);});
+  form.addEventListener('submit',function(e){e.preventDefault();var v=input.value.trim();if(!v)return;input.value='';if(window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches)input.blur();handle(v,null);});
   pills.addEventListener('click',function(e){var b=e.target.closest('.pill');if(!b)return;handle(labels[b.dataset.k]||'',b.dataset.k);});
 })();

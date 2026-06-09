@@ -111,12 +111,14 @@
   function setVVH(){
     var full=window.innerHeight;
     var h=keyboardActive && vv ? vv.height : full;
-    var top=vv?vv.offsetTop:0;
+    var top=keyboardActive && vv?vv.offsetTop:0;
     var bottom=keyboardActive && vv?Math.max(0,full-h-top):0;
     if(keyboardActive && window.matchMedia('(max-width:760px)').matches && h>window.innerHeight*.72){
-      h=Math.round(window.innerHeight*.78);
-      bottom=0;
+      h=Math.round(full*.56);
+      top=0;
+      bottom=full-h;
     }
+    html.style.setProperty('--vvt',top+'px');
     html.style.setProperty('--vvh',h+'px');
     html.style.setProperty('--vvb',bottom+'px');
   }
