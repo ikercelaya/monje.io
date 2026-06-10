@@ -128,7 +128,7 @@
       var dockH=dock?dock.offsetHeight:150;
       var cTop=composer?composer.offsetTop:92;
       var cH=composer?composer.offsetHeight:58;
-      var target=top+(h*.48);
+      var target=top+(h*.60);
       var dockTop=target-cTop-(cH/2);
       var minDock=top+8;
       var maxDock=top+h-dockH-6;
