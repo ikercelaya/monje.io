@@ -48,7 +48,7 @@
      Lo activa orb.js añadiendo .chatting a <html>. La página deja de scrollear; el chat scrollea dentro. */
   /* Body BLOQUEADO (position:fixed) → iOS no puede scrollear/saltar nada con el teclado.
      La altura la marca el área visible (--vvh, visualViewport). El chat rellena ese área. */
-  html.chatting{height:100%}
+  html.chatting{height:100%;overflow:hidden;overscroll-behavior:none}
   html.chatting body{position:fixed;top:0;left:0;right:0;width:100%;overflow:hidden;height:100vh;height:100dvh;height:var(--vvh,100dvh)}
   html.chatting #hero{height:100%}
   html.chatting .pin{position:absolute;top:0;left:0;right:0;bottom:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;padding:78px 96px 24px;z-index:5}
@@ -73,22 +73,24 @@
   html.chatting .pill-tx b{font-size:13px}
   @media(max-width:560px){
     html.chatting nav{display:none}
-    html.chatting body{height:100vh;height:100dvh}
+    html.chatting body{height:100vh;height:100dvh;overflow:hidden;overscroll-behavior:none}
     html.chatting #hero{height:100vh;height:100dvh}
     html.chatting .pin{position:fixed;top:var(--vvt,0px);height:var(--vvh,100svh);bottom:auto;padding:0 16px;overflow:visible}
     html.chatting .hero-inner{height:100%;flex:1 1 auto;min-height:0;align-items:stretch}
     html.chatting .orb-wrap{display:none}
     html.chatting .corner-cta{display:none}
     html.chatting .stage{flex:1 1 auto;max-width:none;width:100%;height:100%;min-height:0;margin:0;gap:0}
-    html.chatting #chat{position:fixed;left:16px;right:16px;top:calc(var(--vvt,0px) + 12px);bottom:calc(var(--vvb,0px) + 168px + env(safe-area-inset-bottom));display:flex;min-height:96px;margin:0;padding:4px 2px 10px;overscroll-behavior:contain}
-    html.chatting .chat-dock{position:fixed;left:16px;right:16px;bottom:calc(var(--vvb,0px) + 8px + env(safe-area-inset-bottom));z-index:45;padding-top:12px;background:linear-gradient(to bottom,rgba(255,255,255,0),var(--white) 12px,var(--white) 100%)}
+    html.chatting #chat{position:fixed;left:16px;right:16px;top:calc(var(--vvt,0px) + 12px);bottom:calc(var(--vvb,0px) + 168px + env(safe-area-inset-bottom));display:flex;min-height:96px;margin:0;padding:4px 2px 10px;overscroll-behavior:contain;overflow-x:hidden}
+    html.chatting .chat-dock{position:fixed;left:16px;right:16px;bottom:calc(var(--vvb,0px) + 8px + env(safe-area-inset-bottom));z-index:45;max-width:calc(100vw - 32px);padding-top:12px;background:linear-gradient(to bottom,rgba(255,255,255,0),var(--white) 12px,var(--white) 100%);overflow:hidden}
     html.chatting .pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 8px}
     html.chatting .pills .pill{width:100%;justify-content:flex-start;padding:7px 9px;border-radius:14px;gap:8px;min-height:40px}
     html.chatting .pill-ic{width:28px;height:28px}
     html.chatting .pill-tx b{font-size:12.5px;line-height:1.05;white-space:normal}
     html.chatting form.composer{flex:0 0 auto}
-    html.chatting.kb #chat{top:calc(var(--vvt,0px) + 10px);bottom:calc(var(--vvb,0px) + 158px);min-height:68px;padding-bottom:6px}
-    html.chatting.kb .chat-dock{bottom:calc(var(--vvb,0px) + 6px)}
+    html.chatting form.composer input{min-width:0}
+    html.chatting.kb,html.chatting.kb body{position:fixed;inset:0;overflow:hidden;touch-action:none}
+    html.chatting.kb #chat{top:var(--chat-top,12px);bottom:auto;height:var(--chat-h,128px);min-height:0;padding-bottom:6px;overflow:hidden;touch-action:none}
+    html.chatting.kb .chat-dock{top:var(--dock-top,44vh);bottom:auto;touch-action:auto}
     html.chatting.kb .pills{gap:6px;margin-bottom:7px}
     html.chatting.kb .pills .pill{min-height:36px;padding:5px 8px;border-radius:12px}
     html.chatting.kb .pill-ic{width:24px;height:24px}

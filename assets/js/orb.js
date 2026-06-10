@@ -108,6 +108,7 @@
      para que el chat no se rompa, y ocultamos los CTAs flotantes mientras se escribe. --- */
   var vv=window.visualViewport;
   var keyboardActive=false;
+  function px(n){return Math.round(n)+'px';}
   function setVVH(){
     var full=window.innerHeight;
     var h=keyboardActive && vv ? vv.height : full;
@@ -121,6 +122,28 @@
     html.style.setProperty('--vvt',top+'px');
     html.style.setProperty('--vvh',h+'px');
     html.style.setProperty('--vvb',bottom+'px');
+    if(keyboardActive && window.matchMedia('(max-width:760px)').matches){
+      var dock=document.querySelector('.chat-dock');
+      var composer=document.getElementById('composer');
+      var dockH=dock?dock.offsetHeight:150;
+      var cTop=composer?composer.offsetTop:92;
+      var cH=composer?composer.offsetHeight:58;
+      var target=top+(h*.48);
+      var dockTop=target-cTop-(cH/2);
+      var minDock=top+8;
+      var maxDock=top+h-dockH-6;
+      if(maxDock<minDock) maxDock=minDock;
+      dockTop=Math.max(minDock,Math.min(maxDock,dockTop));
+      var chatTop=top+10;
+      var chatH=Math.max(42,dockTop-chatTop-8);
+      html.style.setProperty('--dock-top',px(dockTop));
+      html.style.setProperty('--chat-top',px(chatTop));
+      html.style.setProperty('--chat-h',px(chatH));
+    } else {
+      html.style.removeProperty('--dock-top');
+      html.style.removeProperty('--chat-top');
+      html.style.removeProperty('--chat-h');
+    }
   }
   function settleVVH(){
     setVVH();
