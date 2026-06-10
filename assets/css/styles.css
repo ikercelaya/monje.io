@@ -89,8 +89,10 @@
     html.chatting form.composer{flex:0 0 auto}
     html.chatting form.composer input{min-width:0}
     html.chatting.kb,html.chatting.kb body{position:fixed;inset:0;overflow:hidden;touch-action:none}
-    html.chatting.kb #chat{top:var(--chat-top,12px);bottom:auto;height:var(--chat-h,128px);min-height:0;padding-bottom:6px;overflow:hidden;touch-action:none}
-    html.chatting.kb .chat-dock{top:var(--dock-top,44vh);bottom:auto;touch-action:auto}
+    html.chatting.kb .pin{top:0;height:100vh;height:100dvh;overflow:hidden}
+    html.chatting.kb #hero,html.chatting.kb .stage{height:100vh;height:100dvh;overflow:hidden}
+    html.chatting.kb #chat{top:10px;bottom:auto;height:max(56px,calc(50vh - 122px));min-height:0;padding-bottom:6px;overflow:hidden;touch-action:none}
+    html.chatting.kb .chat-dock{top:50vh;bottom:auto;transform:translateY(-50%);touch-action:auto}
     html.chatting.kb .pills{gap:6px;margin-bottom:7px}
     html.chatting.kb .pills .pill{min-height:36px;padding:5px 8px;border-radius:12px}
     html.chatting.kb .pill-ic{width:24px;height:24px}
