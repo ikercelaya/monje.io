@@ -52,8 +52,28 @@
     window.addEventListener('load',function(){ toTop(); requestAnimationFrame(toTop); setTimeout(toTop,80); });
 
     var delta=0;
-    function measure(){ if(!inner)return; inner.style.transform='none'; var r=wrap.getBoundingClientRect(); delta=(window.innerHeight/2)-(r.top+r.height/2); }
-    measure(); window.addEventListener('load',measure);
+    function measure(){
+      if(!inner||chatting) return;
+      var prev=inner.style.transform;
+      inner.style.transform='none';
+      var r=wrap.getBoundingClientRect();
+      // visualViewport.height excluye la URL bar de Safari iOS → centra de verdad respecto al área visible
+      var vvObj=window.visualViewport;
+      var vh=(vvObj&&vvObj.height)||window.innerHeight;
+      delta=(vh/2)-(r.top+r.height/2);
+      if(prev) inner.style.transform=prev;
+    }
+    measure();
+    window.addEventListener('load',function(){
+      measure();
+      requestAnimationFrame(measure);
+      setTimeout(measure,100);
+      setTimeout(measure,400);
+      setTimeout(measure,1000);   // iOS: la barra de Safari se anima/colapsa tarde
+    });
+    if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(measure); }
+    window.addEventListener('orientationchange',function(){ setTimeout(measure,100); setTimeout(measure,400); });
+    if(window.visualViewport){ window.visualViewport.addEventListener('resize',function(){ if(!chatting) measure(); }); }
 
     var prog=0;
     function readScroll(){ var travel=hero.offsetHeight-window.innerHeight; prog=clamp((-hero.getBoundingClientRect().top)/(travel||1)); }
@@ -124,18 +144,14 @@
     html.style.setProperty('--vvb',bottom+'px');
     if(keyboardActive && window.matchMedia('(max-width:760px)').matches){
       var dock=document.querySelector('.chat-dock');
-      var composer=document.getElementById('composer');
-      var dockH=dock?dock.offsetHeight:150;
-      var cTop=composer?composer.offsetTop:92;
-      var cH=composer?composer.offsetHeight:58;
-      var target=top+(h*.60);
-      var dockTop=target-cTop-(cH/2);
-      var minDock=top+8;
-      var maxDock=top+h-dockH-6;
-      if(maxDock<minDock) maxDock=minDock;
-      dockTop=Math.max(minDock,Math.min(maxDock,dockTop));
-      var chatTop=top+10;
-      var chatH=Math.max(42,dockTop-chatTop-8);
+      var dockH=dock?dock.offsetHeight:160;
+      var pad=6;                                      // pelín de aire sobre el teclado
+      // dock anclado JUSTO encima del teclado (borde inferior del viewport visible)
+      var dockTop=top+h-dockH-pad;
+      var minDock=top+60;                             // que no se solape con la cabecera
+      if(dockTop<minDock) dockTop=minDock;
+      var chatTop=top+8;
+      var chatH=Math.max(48,dockTop-chatTop-6);
       html.style.setProperty('--dock-top',px(dockTop));
       html.style.setProperty('--chat-top',px(chatTop));
       html.style.setProperty('--chat-h',px(chatH));

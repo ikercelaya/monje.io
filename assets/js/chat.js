@@ -79,6 +79,33 @@
     stage++; busy=false;
   }
 
-  form.addEventListener('submit',function(e){e.preventDefault();var v=input.value.trim();if(!v)return;input.value='';if(window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches)input.blur();handle(v,null);});
-  pills.addEventListener('click',function(e){var b=e.target.closest('.pill');if(!b)return;handle(labels[b.dataset.k]||'',b.dataset.k);});
+  function isTouch(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches;}
+  function closeKB(){
+    if(!isTouch()) return;
+    try{ input.blur(); }catch(_){}
+    var ae=document.activeElement;
+    if(ae && ae!==document.body && typeof ae.blur==='function'){ try{ ae.blur(); }catch(_){} }
+  }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=input.value.trim(); if(!v) return;
+    input.value='';
+    closeKB();
+    handle(v,null);
+  });
+  // En móvil, el ciclo touch → blur(input) → cambio de layout → click hacía que el primer toque
+  // en un pill no enganchara. Disparamos en touchstart con preventDefault para cortar ese ciclo;
+  // el click sigue activo en desktop.
+  var lastTap=0;
+  function tapPill(e){
+    var b=e.target&&e.target.closest?e.target.closest('.pill'):null;
+    if(!b) return;
+    if(Date.now()-lastTap<350) return;   // debounce: evita doble disparo touch+click sintético
+    lastTap=Date.now();
+    e.preventDefault();
+    closeKB();
+    handle(labels[b.dataset.k]||'', b.dataset.k);
+  }
+  pills.addEventListener('touchstart', tapPill, {passive:false});
+  pills.addEventListener('click', tapPill);
 })();
