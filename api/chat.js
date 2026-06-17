@@ -3,12 +3,13 @@
 //   POST  { message, pillar, history:[{role,content}] }  ->  { reply, offerCall }
 //
 // Por defecto responde con el GUION on-voice: sin dependencias ni claves, despliega y funciona.
-// Si defines  ANTHROPIC_API_KEY  el chat pasa a ser Monje "de verdad" (LLM con la voz de marca);
+// Si defines  ANTHROPIC_API_KEY  el chat pasa a ser Monje "de verdad" (Claude con la voz de marca);
 // opcional  ANTHROPIC_MODEL  (por defecto claude-sonnet-4-6).
 //
 // Regla de marca innegociable: Monje es UNA PERSONA, nunca un bot. No 'botifiques' el copy.
 
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+const CTA_TURN = 1; // turn 0 = primera respuesta de Alex; turn 1 = segunda respuesta.
 
 const OPENERS = {
   atraer:"Atraer está sobrevalorado si luego no se quedan. ¿Tu problema es que no llega gente… o que llega y no engancha?",
@@ -23,9 +24,9 @@ const KEEP = [
   "Vale. Y de todo esto, ¿qué es lo que más te urge resolver ahora?"
 ];
 
-// Cadencia de la llamada: se ofrece en el 2º mensaje del visitante (turn 1) y, si no reserva,
+// Cadencia de la llamada: se ofrece como tarde en el 2º mensaje de Alex (turn 1) y, si no reserva,
 // cada 3 turnos (1, 4, 7…). Entre medias, se aporta valor sin presionar.
-function isOfferTurn(turn){ return turn >= 1 && (turn - 1) % 3 === 0; }
+function isOfferTurn(turn){ return turn >= CTA_TURN && (turn - CTA_TURN) % 3 === 0; }
 
 // Guion de respaldo (si el LLM falla o no hay clave). Mantiene la misma cadencia.
 function scripted(turn, pillar){
@@ -38,16 +39,26 @@ function scripted(turn, pillar){
 // Rellena esto con cómo habla y qué piensa Alex (copia el contenido de brand/alex.md).
 // Mientras esté así, el chat usa solo la voz de marca y NO inventa datos.
 const ALEX = `CÓMO PIENSA ALEX (sus creencias y forma de ver marketing + IA):
-- (pendiente de completar — ver brand/alex.md)`;
+- Monje no alarga el chat para parecer listo. Pregunta lo justo, detecta el problema y propone una llamada cuando ya hay dolor claro.
+- No vende "servicios sueltos": dirige marketing, IA y sistemas para que la empresa deje de comunicar como aficionada.
+- Si alguien tiene visitas y no vende, casi nunca necesita más tráfico: necesita mensaje, oferta y camino de conversión.
+- Si alguien repite tareas, la IA no es magia: es criterio convertido en sistema.
+- Si alguien quiere escalar, primero hay que encontrar qué se rompe con más clientes: gestión, captación, seguimiento o entrega.
+- Tono: directo, humano, con punch. Frases cortas. Cero jerga de agencia. No suena a soporte ni a chatbot.
+
+CADENCIA QUE DEBE NOTARSE EN EL CHAT:
+- Primer mensaje de Alex: presentarse como persona real y hacer UNA pregunta que concrete el problema.
+- Segundo mensaje de Alex: reconocer el problema y abrir la llamada de 20 minutos. La CTA visual la enseña la web con offerCall=true.
+- No des consultoría larga por chat. Esto es para ir al grano y reservar si encaja.`;
 
 const SYSTEM = `Eres **Alex**, la persona real que está detrás de Monje (la figura/director que orquesta marketing con IA). NO eres un bot, ni una IA, ni un asistente. Hablas en primera persona como Alex. Si te preguntan si eres un bot, lo niegas con naturalidad: eres una persona y el chat es solo para ir al grano. Nunca digas "modelo", "IA", "asistente" ni te disculpes por ser una máquina: no lo eres. (Marca = Monje; tú eres Alex, quien atiende y va a estar en su negocio.)
 
 QUÉ HACES AQUÍ
 Estás en la web de monje.io. Tu único objetivo es entender rápido el problema de quien escribe (un negocio que YA factura pero comunica como aficionado) y llevarlo a reservar una llamada de 20 minutos gratis. No des consultoría larga ni expliques servicios por aquí: clava el problema y abre conversación. La llamada es donde se cierra.
 
-VOZ Y ENFOQUE (estilo Pedro Buerbaum)
-- Tono y enfoque de **Pedro Buerbaum**: emprendedor que ha escalado negocios y habla desde la experiencia, NO desde la teoría. Directo, con energía, orientado a RESULTADOS y VENTAS, con mentalidad de crecimiento y cero humo.
-- Confrontas con cariño: señalas lo que el negocio NO está haciendo y lo que le está costando en dinero/clientes. Exigente pero cercano, tipo mentor.
+VOZ Y ENFOQUE
+- Hablas como alguien que ha visto negocios buenos perder dinero por comunicar mal. Directo, con energía, orientado a RESULTADOS y VENTAS, con mentalidad de crecimiento y cero humo.
+- Confrontas con cariño: señalas lo que el negocio NO está haciendo y lo que le está costando en dinero/clientes. Exigente pero cercano.
 - Aterrizas TODO en lo práctico: qué hacer, por dónde empezar y qué le cuesta no hacerlo. Hablas de ventas, números, escalar, sistemas, ejecución y marca.
 - Motivas siempre con acción concreta ("deja de darle vueltas y ejecuta", "esto se arregla, pero hay que ponerse"), nunca con hype vacío ni frases de coach.
 - Cero relleno corporativo: nada de "soluciones", "a medida", "sinergia", "ecosistema", "potenciar", "engagement", "storytelling". Si suena a agencia genérica o a gurú de humo, fuera.
@@ -66,11 +77,15 @@ ${ALEX}
 NO INVENTES
 Nunca te inventes precios, plazos, garantías, casos concretos ni datos que no estén arriba. Si no lo sabes, dilo con naturalidad y llévalo a la llamada ("eso lo vemos en la llamada, sin rodeos"). Responde según lo que piensa Alex; si te preguntan su opinión, dala con seguridad.
 
-LA LLAMADA (tú decides según lo que diga el visitante; NO por número de mensajes)
+CADENCIA OBLIGATORIA DE LA CTA
+- En tu primer mensaje, offerCall=FALSE. Presenta a Alex y haz una pregunta útil.
+- En tu segundo mensaje o posterior, offerCall=TRUE. Tiene que aparecer la opción "Reservar mi llamada" como máximo tras dos respuestas de Alex.
+- En ese segundo mensaje, resume el problema en una frase y propón la llamada con naturalidad. No supliques, no presiones.
+
+LA LLAMADA
 - Objetivo: llevarle a reservar una llamada de 20 min gratis. La web tiene un botón verde ("Reservar mi llamada") que ya enlaza a la agenda: NO pegues enlaces ni URLs.
-- Pon offerCall=TRUE cuando el MENSAJE lo pida: ya hay un problema real + intención, te pide ayuda/precio/cómo trabajáis, da señales de estar listo, o lo pide directamente. En ese reply, invita con naturalidad (gratis, sin compromiso, "hablas con quien va a estar en tu negocio").
-- Pon offerCall=FALSE cuando todavía estás entendiendo, te hacen una pregunta suelta o falta contexto: ahí aporta valor y avanza con UNA pregunta. No fuerces la llamada si no toca.
-- Si ya la ofreciste y no reservó, vuelve a ofrecerla más adelante cuando el hilo lo pida otra vez —sin repetirlo en cada mensaje (no spamees).
+- En el reply donde offerCall=TRUE, invita con naturalidad (gratis, sin compromiso, "hablas con quien va a estar en tu negocio").
+- Si ya la ofreciste y no reservó, sigue respondiendo corto y útil. La tarjeta seguirá disponible.
 
 TONO DE REFERENCIA (así suenas; no lo copies salvo los openers de pilar)
 - Sin pilar: "${OPENERS._default}"
@@ -82,7 +97,20 @@ TONO DE REFERENCIA (así suenas; no lo copies salvo los openers de pilar)
 
 Responde SIEMPRE llamando a la herramienta "responder".`;
 
-async function callClaude(message, pillar, history){
+function hasCallInvite(reply){
+  return /llamada|20\s*min|20\s*minutos|reserv/i.test(String(reply || ''));
+}
+
+function enforceCta(reply, offerCall, turn){
+  if (turn < CTA_TURN) return { reply, offerCall: false };
+  var text = String(reply || '').trim();
+  if (!hasCallInvite(text)) {
+    text += (text ? ' ' : '') + 'Lo vemos en una llamada de 20 minutos y sales con un plan, fiches a Monje o no.';
+  }
+  return { reply: text, offerCall: true };
+}
+
+async function callClaude(message, pillar, history, turn){
   const msgs = (Array.isArray(history) ? history : [])
     .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
     .map(m => ({ role: m.role, content: m.content }));
@@ -90,14 +118,14 @@ async function callClaude(message, pillar, history){
   // si no, lo añadimos para no quedarnos sin turno de usuario.
   if (!msgs.length || msgs[msgs.length - 1].role !== 'user') msgs.push({ role: 'user', content: String(message || '') });
 
-  const firstMsg = msgs.filter(m => m.role === 'user').length <= 1;
+  const firstMsg = turn <= 0;
 
   const pillarHint = (pillar && OPENERS[pillar])
     ? `\n\nEl visitante ha pulsado el pilar "${pillar}". Si es su primer mensaje, abre en esa línea (referencia: "${OPENERS[pillar]}").`
     : '';
   const firstHint = firstMsg
-    ? '\n\nEs el PRIMER mensaje: preséntate breve como Alex y clava su problema con UNA pregunta. Aún no ofrezcas la llamada.'
-    : '';
+    ? '\n\nEs el PRIMER mensaje: preséntate breve como Alex y clava su problema con UNA pregunta. Devuelve offerCall=false.'
+    : '\n\nYa es tu SEGUNDO mensaje o posterior: reconoce lo que te ha dicho, abre la llamada de 20 minutos con naturalidad y devuelve offerCall=true.';
   const hint = pillarHint + firstHint;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -121,7 +149,7 @@ async function callClaude(message, pillar, history){
           type: 'object',
           properties: {
             reply: { type: 'string', description: 'Lo que dice Monje. 1–3 frases, español, tono persona-real. Puedes usar <b>…</b>.' },
-            offerCall: { type: 'boolean', description: 'true cuando ya tiene sentido invitar a la llamada de 20 min (normalmente desde el 2º mensaje del visitante).' }
+            offerCall: { type: 'boolean', description: 'false en la primera respuesta de Alex; true desde la segunda respuesta de Alex para mostrar la CTA de reserva.' }
           },
           required: ['reply', 'offerCall']
         }
@@ -134,8 +162,8 @@ async function callClaude(message, pillar, history){
   const data = await res.json();
   const tool = (data.content || []).find(b => b.type === 'tool_use');
   if (!tool || !tool.input || typeof tool.input.reply !== 'string') throw new Error('respuesta sin tool_use');
-  // El modelo decide cuándo ofrecer la llamada, según lo que ha escrito el visitante.
-  return { reply: tool.input.reply, offerCall: firstMsg ? false : !!tool.input.offerCall };
+  // Guardia de producto: la CTA debe aparecer como máximo en la segunda respuesta de Alex.
+  return enforceCta(tool.input.reply, !!tool.input.offerCall, turn);
 }
 
 async function readBody(req){
@@ -161,11 +189,12 @@ module.exports = async (req, res) => {
     const message = typeof body.message === 'string' ? body.message : '';
     const pillar  = typeof body.pillar === 'string' ? body.pillar : null;
     const history = Array.isArray(body.history) ? body.history : [];
-    const turn = history.filter(m => m && m.role === 'user').length - 1; // 0 en el primer mensaje del visitante
+    const userTurns = history.filter(m => m && m.role === 'user').length || (message ? 1 : 0);
+    const turn = Math.max(0, userTurns - 1); // 0 en el primer mensaje del visitante
 
     if (process.env.ANTHROPIC_API_KEY) {
       try {
-        res.status(200).json(await callClaude(message, pillar, history));
+        res.status(200).json(await callClaude(message, pillar, history, turn));
         return;
       } catch (err) {
         console.error('[api/chat] LLM falló, uso el guion:', err && err.message);

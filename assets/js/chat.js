@@ -24,7 +24,11 @@
   function botRow(node){var r=document.createElement('div');r.className='row bot-row';
     var a=document.createElement('span');a.className='bubble-ava';a.innerHTML='<img src="assets/img/avatar.jpg" alt="Monje">';
     r.appendChild(a);r.appendChild(node);return r;}
-  function add(t,w){var m=document.createElement('div');m.className='msg '+w;m.innerHTML=t;
+  function safeBotHtml(s){
+    return esc(String(s || '')).replace(/&lt;(\/?)b&gt;/g,'<$1b>');
+  }
+  function add(t,w){var m=document.createElement('div');m.className='msg '+w;
+    if(w==='bot') m.innerHTML=safeBotHtml(t); else m.textContent=t;
     var node=(w==='bot')?botRow(m):m;chat.appendChild(node);scrollChat();}
   function typing(){var d=document.createElement('div');d.className='typing';d.innerHTML='<span></span><span></span><span></span>';
     var row=botRow(d);chat.appendChild(row);scrollChat();return row;}
@@ -64,7 +68,7 @@
   /* --- un turno de conversación --- */
   async function handle(text,key){
     if(busy||!text) return; busy=true;
-    add(esc(text),'user');
+    add(text,'user');
     history.push({role:'user',content:text});
     var turn=stage;
     var d=typing(),t0=Date.now();

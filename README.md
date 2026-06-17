@@ -17,7 +17,16 @@ Sin backend cae a un **mock local** on-voice, así que la landing funciona abri�
 
 El endpoint (`api/chat.js`, Vercel, sin dependencias) responde con el **guion de marca** por
 defecto. Define **`ANTHROPIC_API_KEY`** (y opcional `ANTHROPIC_MODEL`, por defecto
-`claude-sonnet-4-6`) para activar a Monje "de verdad" con un LLM. Si el LLM falla, vuelve al guion.
+`claude-sonnet-4-6`) para activar a Monje con Claude. Si Claude falla, vuelve al guion.
+
+La cadencia está cerrada por producto: la primera respuesta de Alex pregunta y la opción
+**"Reservar mi llamada"** aparece como máximo en su segunda respuesta.
+
+En Vercel añade estas variables en **Project Settings → Environment Variables**:
+```bash
+ANTHROPIC_API_KEY=tu_clave
+ANTHROPIC_MODEL=claude-sonnet-4-6 # opcional
+```
 
 > Es **persona-real, no bot**: no cambies el tono ni hagas que el chat parezca un chatbot.
 
