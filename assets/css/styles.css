@@ -172,10 +172,13 @@
   .cta-card{margin-top:4px;background:var(--white);border:1px solid var(--line);border-radius:22px;padding:18px 20px;
        display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;animation:pop .4s both;
        box-shadow:0 20px 50px -34px rgba(0,0,0,.4)}
+  .cta-copy{min-width:0}
   .cta-card h3{font-size:17px;font-weight:700;letter-spacing:-0.01em}
   .cta-card p{font-family:var(--mono);font-size:10.5px;letter-spacing:0.13em;color:var(--gray);margin-top:5px;text-transform:uppercase}
+  .cta-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
   .cta-btn{flex:none;background:var(--green);color:var(--black);font-family:var(--disp);font-weight:700;font-size:15px;
-       border:none;padding:14px 22px;border-radius:40px;cursor:pointer;text-decoration:none;transition:transform .2s}
+       border:none;padding:14px 22px;border-radius:40px;cursor:pointer;text-decoration:none;transition:transform .2s;
+       display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
   .cta-btn:hover{transform:translateY(-2px)}
   .presence{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px}
   .presence .ava{width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid var(--green);flex:none}
@@ -210,6 +213,7 @@
   @keyframes rise{to{opacity:1;transform:none}}
   .d1{animation-delay:.05s}.d2{animation-delay:.18s}.d3{animation-delay:.34s}.d4{animation-delay:.5s}
   @media(max-width:560px){nav{padding:16px}.nav-label{display:none}.orb-wrap{width:190px;height:190px}.cta-card{flex-direction:column;align-items:flex-start}
+    .cta-actions{width:100%;flex-direction:column;align-items:stretch}.cta-btn{width:100%;font-size:14px}
     .nav-right{gap:8px}.btn-fichar,.btn-contacta{font-size:12px;padding:9px 13px;white-space:nowrap}.logo{font-size:21px}
     /* titular en UNA línea, escalando con el ancho */
     h1{white-space:nowrap;font-size:clamp(15px,5vw,30px);line-height:1.1;max-width:none}

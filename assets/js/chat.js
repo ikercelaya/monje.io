@@ -6,16 +6,20 @@
   var ENDPOINT='/api/chat';
   var stage=0,ctaCard=null,busy=false;
   var history=[];                         // [{role:'user'|'assistant',content}] — contexto para el bot real
+  var CTA_TURN=2;
+  var WHATSAPP_URL='https://wa.me/34619814199?text=Hola%20Monje%2C%20quiero%20que%20me%20ayudes%20con...';
+  var CALL_URL='https://calendly.com/monje-io';
 
   /* --- guion base = mock local (y tono base del system prompt del backend) --- */
   var openers={
-    atraer:"Atraer está sobrevalorado si luego no se quedan. ¿Tu problema es que no llega gente… o que llega y no engancha?",
-    convertir:"Si entra gente y no compra, no es la web: es el mensaje. ¿Qué quieres que haga el que llega —comprar, reservar, escribirte?",
-    automatizar:"Lo que repites cada semana lo puede hacer la IA por ti. ¿Qué es lo que más horas te roba ahora mismo?",
-    escalar:"Crecer sin sistema es solo currar más. ¿Qué se rompería si mañana te entra el triple de clientes?",
-    _default:"Te leo. Suena a producto bueno con una comunicación que no está a su altura. ¿Qué es lo que más te frena ahora mismo?"
+    atraer:"Atraer más está bien, pero atraer gente que no compra es solo <b>coleccionar mirones</b>. ¿Tu problema es que no llega nadie… o que llega y se va sin hacer nada?",
+    convertir:"Si entra gente y no compra, no suele ser la web: suele ser el mensaje. ¿Qué quieres que haga quien llega: comprar, reservar o escribirte?",
+    automatizar:"Si lo repites cada semana, no es trabajo: es peaje. ¿Qué tarea te está robando más horas ahora mismo?",
+    escalar:"Escalar sin sistema es ponerle gasolina al caos. ¿Qué se rompería primero si mañana te entra el triple de clientes?",
+    _default:"Te leo. Suena a negocio que funciona, pero comunica por debajo de lo que vale. ¿Dónde notas más el freno ahora mismo?"
   };
-  var second="Lo tengo. Esto no se arregla con posts sueltos, sino con marketing e IA trabajando juntos —y se ve clarísimo en una llamada de 20 minutos. Te la regalo: sales con un plan, fiches a Monje o no.";
+  var firstPrefix='Soy Alex, la persona detrás de Monje, y estoy aquí para ir al grano. ';
+  var contactOffer='Viendo lo que cuentas, creo que puedo ayudarte. Elige cómo lo vemos y voy al grano con una solución para tu caso.';
   var labels={atraer:'Quiero atraer más clientes.',convertir:'Tengo visitas pero no convierten.',automatizar:'Quiero automatizar y dejar de perder horas.',escalar:'Quiero escalar sin morir en el intento.'};
 
   /* --- UI --- */
@@ -32,22 +36,26 @@
     var node=(w==='bot')?botRow(m):m;chat.appendChild(node);scrollChat();}
   function typing(){var d=document.createElement('div');d.className='typing';d.innerHTML='<span></span><span></span><span></span>';
     var row=botRow(d);chat.appendChild(row);scrollChat();return row;}
-  // Tarjeta de reserva. Se reutiliza: en cada nueva oferta se reposiciona al final (reaparece).
+  // Tarjeta de contacto. Se reutiliza: en cada nueva oferta se reposiciona al final (reaparece).
   function showCTA(){
     if(!ctaCard){ ctaCard=document.createElement('div');ctaCard.className='cta-card';
-      ctaCard.innerHTML='<div><h3>Sigamos tú y yo, 20 minutos.</h3><p>Hablas con quien va a estar en tu negocio · gratis · sin compromiso</p></div><a class="cta-btn" href="https://calendly.com/monje-io" target="_blank" rel="noopener">Reservar mi llamada →</a>'; }
+      ctaCard.innerHTML='<div class="cta-copy"><h3>Elige cómo seguimos.</h3><p>Reviso tu caso y te ofrezco la solución que necesitas</p></div><div class="cta-actions"><a class="cta-btn" href="'+WHATSAPP_URL+'" target="_blank" rel="noopener">Hablamos por WhatsApp</a><a class="cta-btn" href="'+CALL_URL+'" target="_blank" rel="noopener">Reservar mi llamada →</a></div>'; }
     chat.appendChild(ctaCard);scrollChat();}
 
   /* --- helpers --- */
   function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function strip(s){return s.replace(/<[^>]+>/g,'');}
   function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function replyDelay(text){
+    var len=strip(String(text||'')).length;
+    return Math.min(3200,Math.max(850,620+len*13));
+  }
 
   /* --- mock local (sin backend): mismo guion y MISMA cadencia que el backend --- */
-  var keep=["Te sigo. ¿Qué has probado ya que no te haya terminado de funcionar?","Vale. Y de todo esto, ¿qué es lo que más te urge resolver ahora?"];
+  var keep=["Tiene pinta de que ahí hay más fricción de la que parece. ¿Qué has probado ya?","Vale. ¿Y qué parte te está costando más ahora: captar, convertir o gestionarlo sin perder tiempo?"];
   function mockReply(turn,key){
-    if(turn===0) return {reply:'Soy <b>Alex</b> —una persona de verdad, no un bot. Vamos al grano para no hacerte perder el tiempo. '+(openers[key]||openers._default),offerCall:false};
-    if(turn>=1 && (turn-1)%3===0) return {reply:second,offerCall:true};   // ofrece en 1,4,7…
+    if(turn===0) return {reply:firstPrefix+(openers[key]||openers._default),offerCall:false};
+    if(turn>=CTA_TURN && (turn-CTA_TURN)%3===0) return {reply:contactOffer,offerCall:true};   // ofrece en 2,5,8…
     return {reply:keep[turn%keep.length],offerCall:false};
   }
 
@@ -73,7 +81,7 @@
     var turn=stage;
     var d=typing(),t0=Date.now();
     var data=await ask(text,key,turn);
-    var min=Math.min(1400,650+data.reply.length*7);   // mantiene el ritmo "humano" aunque la respuesta sea instantánea
+    var min=replyDelay(data.reply);   // mantiene el ritmo "humano" y escala con el largo del texto
     var rest=min-(Date.now()-t0); if(rest>0) await sleep(rest);
     d.remove();
     add(data.reply,'bot');
