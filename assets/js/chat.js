@@ -19,7 +19,7 @@
     _default:"Te leo. Suena a negocio que funciona, pero comunica por debajo de lo que vale. ¿Dónde notas más el freno ahora mismo?"
   };
   var firstPrefix='Soy Alex, la persona detrás de Monje, y estoy aquí para ir al grano. ';
-  var contactOffer='Viendo lo que cuentas, creo que puedo ayudarte. Elige cómo lo vemos y voy al grano con una solución para tu caso.';
+  var contactOffer='Esto tiene solución y sé por dónde tirar. Dime por dónde te viene mejor:';
   var labels={atraer:'Quiero atraer más clientes.',convertir:'Tengo visitas pero no convierten.',automatizar:'Quiero automatizar y dejar de perder horas.',escalar:'Quiero escalar sin morir en el intento.'};
 
   /* --- UI --- */
@@ -52,7 +52,7 @@
   }
 
   /* --- mock local (sin backend): mismo guion y MISMA cadencia que el backend --- */
-  var keep=["Tiene pinta de que ahí hay más fricción de la que parece. ¿Qué has probado ya?","Vale. ¿Y qué parte te está costando más ahora: captar, convertir o gestionarlo sin perder tiempo?"];
+  var keep=["Eso casi siempre es mensaje, no tráfico. ¿Qué vendes exactamente?","Te sigo. ¿Qué es lo que más te frena ahora mismo?"];
   function mockReply(turn,key){
     if(turn===0) return {reply:firstPrefix+(openers[key]||openers._default),offerCall:false};
     if(turn>=CTA_TURN && (turn-CTA_TURN)%3===0) return {reply:contactOffer,offerCall:true};   // ofrece en 2,5,8…

@@ -19,10 +19,10 @@ const OPENERS = {
   _default:"Te leo. Suena a negocio que funciona, pero comunica por debajo de lo que vale. ¿Dónde notas más el freno ahora mismo?"
 };
 const FIRST_PREFIX = "Soy Alex, la persona detrás de Monje, y estoy aquí para ir al grano. ";
-const CONTACT_OFFER = "Viendo lo que cuentas, creo que puedo ayudarte. Elige cómo lo vemos y voy al grano con una solución para tu caso.";
+const CONTACT_OFFER = "Esto tiene solución y sé por dónde tirar. Dime por dónde te viene mejor:";
 const KEEP = [
-  "Tiene pinta de que ahí hay más fricción de la que parece. ¿Qué has probado ya?",
-  "Vale. ¿Y qué parte te está costando más ahora: captar, convertir o gestionarlo sin perder tiempo?"
+  "Eso casi siempre es mensaje, no tráfico. ¿Qué vendes exactamente?",
+  "Te sigo. ¿Qué es lo que más te frena ahora mismo?"
 ];
 
 // Cadencia de contacto: se ofrece tras unos pocos mensajes (turn 2) y, si no contacta,
@@ -81,9 +81,10 @@ VOZ Y ENFOQUE (experto, no novato)
 
 FORMATO
 - Español (si el visitante escribe en otro idioma, acompáñale en el suyo).
-- BREVEDAD ante todo: 1 frase, 2 como mucho, después de la primera respuesta. Si puedes decirlo en menos, dilo en menos. Conversacional, no monólogo. Cierra con UNA pregunta solo cuando haga avanzar el caso.
+- PRIMER mensaje: directo al problema del cliente, 1–2 frases, y cierra con UNA pregunta afilada (como los openers de pilar). Aquí puedes desarrollar un poco; deja claro de forma breve que eres una persona (Alex).
+- A PARTIR DEL SEGUNDO mensaje: MUY cortos. 1 frase, idealmente menos de 15 palabras. Nada de párrafos ni monólogos. Cada frase debe transmitir que esto tiene solución y que para ti es fácil dártela: eso es lo que da confianza para hablar contigo.
 - Puedes usar <b>…</b> para enfatizar UNA palabra clave (se renderiza en negrita). Nada de markdown, listas ni emojis.
-- En tu PRIMER mensaje deja claro, breve, que eres una persona (Alex) y ve directo a una pregunta afilada sobre su problema.
+- No pegues enlaces ni URLs: cuando toque, debajo de tu mensaje aparece sola la tarjeta con los botones de WhatsApp y llamada.
 
 LOS 4 PILARES (por si encajan): Atraer · Convertir · Automatizar · Escalar.
 
@@ -93,15 +94,14 @@ NO INVENTES
 Nunca te inventes precios, plazos, garantías, casos concretos ni datos que no estén arriba. Si no lo sabes, dilo con naturalidad y llévalo a la llamada ("eso lo vemos en la llamada, sin rodeos"). Responde según lo que piensa Alex; si te preguntan su opinión, dala con seguridad.
 
 CADENCIA OBLIGATORIA DE LA CTA
-- En tu primer mensaje, offerCall=FALSE. Presenta a Alex y haz una pregunta útil.
-- En tu segundo mensaje, normalmente offerCall=FALSE. Sigue entendiendo el caso con una respuesta corta.
-- En tu tercer mensaje o posterior, offerCall=TRUE cuando ya haya contexto suficiente. Tiene que aparecer el bloque con WhatsApp y llamada.
-- En ese mensaje, muestra convicción tranquila: puedes ayudarle. Pide que elija método de contacto. No supliques, no presiones.
+- Primer mensaje: offerCall=FALSE. Directo al problema + UNA pregunta.
+- Segundo mensaje: normalmente offerCall=FALSE. UNA frase corta que reencuadre o pregunte, y que dé confianza.
+- Tercer mensaje o posterior: offerCall=TRUE. UNA sola frase corta y segura: deja claro que puedes resolverlo y que el siguiente paso es hablar contigo. NO escribas una invitación larga ni repitas "elige cómo lo vemos": debajo aparece sola la tarjeta con WhatsApp y llamada. Tú solo das el empujón de confianza en pocas palabras. No supliques, no presiones.
 
 CONTACTO FINAL
-- Objetivo: que el visitante elija WhatsApp o llamada. La web muestra los botones: NO pegues enlaces ni URLs.
-- En el reply donde offerCall=TRUE, invita con naturalidad. Mejor: "Creo que puedo ayudarte. Elige cómo lo vemos y voy al grano".
-- Si ya lo ofreciste y no contactó, sigue respondiendo corto y útil. La tarjeta seguirá disponible.
+- La web muestra una tarjeta con los botones (WhatsApp / llamada) debajo de tu mensaje. NO pegues enlaces ni URLs y NO escribas instrucciones largas para elegir.
+- En el reply con offerCall=TRUE, UNA frase corta con convicción tranquila ("Esto lo arreglo, hablémoslo" o similar). Que el cliente sienta que contigo, en una conversación, lo resuelve.
+- Si ya lo ofreciste y no contactó, sigue respondiendo MUY corto y útil. La tarjeta sigue ahí.
 
 TONO DE REFERENCIA (así suenas; no lo copies salvo los openers de pilar)
 - Sin pilar: "${OPENERS._default}"
@@ -113,16 +113,11 @@ TONO DE REFERENCIA (así suenas; no lo copies salvo los openers de pilar)
 
 Responde SIEMPRE llamando a la herramienta "responder".`;
 
-function hasContactInvite(reply){
-  return /whatsapp|llamada|20\s*min|20\s*minutos|reserv|contact/i.test(String(reply || ''));
-}
-
 function enforceCta(reply, offerCall, turn){
-  if (turn < CTA_TURN) return { reply, offerCall: false };
+  // La tarjeta con WhatsApp/llamada la pinta el front desde el turno CTA_TURN.
+  // No añadimos texto a la respuesta: la tarjeta ya invita, así el mensaje queda corto y NO se duplica la CTA.
   var text = String(reply || '').trim();
-  if (!hasContactInvite(text)) {
-    text += (text ? ' ' : '') + CONTACT_OFFER;
-  }
+  if (turn < CTA_TURN) return { reply: text, offerCall: false };
   return { reply: text, offerCall: true };
 }
 
@@ -140,10 +135,10 @@ async function callClaude(message, pillar, history, turn){
     ? `\n\nEl visitante ha pulsado el pilar "${pillar}". Si es su primer mensaje, abre en esa línea (referencia: "${OPENERS[pillar]}").`
     : '';
   const firstHint = firstMsg
-    ? '\n\nEs el PRIMER mensaje: preséntate breve como Alex y clava su problema con UNA pregunta. Devuelve offerCall=false.'
+    ? '\n\nEs el PRIMER mensaje: ve directo a su problema en 1–2 frases y cierra con UNA pregunta afilada. offerCall=false.'
     : (turn >= CTA_TURN
-      ? '\n\nYa hay contexto suficiente: responde corto, muestra convicción tranquila de que puedes ayudarle, pide que elija método de contacto y devuelve offerCall=true.'
-      : '\n\nAún NO muestres contacto. Responde corto, humano y útil. Haz UNA pregunta sencilla para entender mejor el caso y devuelve offerCall=false.');
+      ? '\n\nYa hay contexto: responde en UNA sola frase corta y segura que deje claro que puedes resolverlo y que el paso es hablar contigo. NO escribas invitación larga ni repitas "elige cómo lo vemos" (la tarjeta con WhatsApp/llamada aparece sola). offerCall=true.'
+      : '\n\nAún NO toca contacto. UNA frase MUY corta (menos de 15 palabras) con criterio, o UNA pregunta sencilla. offerCall=false.');
   const hint = pillarHint + firstHint;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -155,7 +150,7 @@ async function callClaude(message, pillar, history, turn){
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 180,
+      max_tokens: 130,
       temperature: 0.72,
       // System como bloque cacheable: el prompt de marca es estable entre turnos.
       system: [{ type: 'text', text: SYSTEM + hint, cache_control: { type: 'ephemeral' } }],
@@ -166,7 +161,7 @@ async function callClaude(message, pillar, history, turn){
         input_schema: {
           type: 'object',
           properties: {
-            reply: { type: 'string', description: 'Lo que dice Monje. 1-2 frases, español, tono persona-real, joven y no agresivo. Puedes usar <b>…</b>.' },
+            reply: { type: 'string', description: 'Lo que dice Monje. MUY corto: 1 frase salvo el primer mensaje (1–2 frases). Español, tono persona-real, seguro y no agresivo. Puedes usar <b>…</b>.' },
             offerCall: { type: 'boolean', description: 'false en los primeros turnos; true desde la tercera respuesta de Alex para mostrar WhatsApp y llamada.' }
           },
           required: ['reply', 'offerCall']
