@@ -53,16 +53,21 @@
     // el navegador puede restaurar el scroll tras recargar: forzamos arriba también tras la carga
     window.addEventListener('load',function(){ toTop(); requestAnimationFrame(toTop); setTimeout(toTop,80); });
 
-    var delta=0;
+    var deltaX=0,deltaY=0;
     function measure(){
       if(!inner||chatting) return;
       var prev=inner.style.transform;
       inner.style.transform='none';
       var r=wrap.getBoundingClientRect();
-      // visualViewport.height excluye la URL bar de Safari iOS → centra de verdad respecto al área visible
+      // visualViewport incluye el desplazamiento real de Safari/iOS; así la esfera queda centrada
+      // en el área visible, no en el layout viewport que queda detrás de las barras del navegador.
       var vvObj=window.visualViewport;
+      var vw=(vvObj&&vvObj.width)||window.innerWidth;
       var vh=(vvObj&&vvObj.height)||window.innerHeight;
-      delta=(vh/2)-(r.top+r.height/2);
+      var vx=(vvObj&&vvObj.offsetLeft)||0;
+      var vy=(vvObj&&vvObj.offsetTop)||0;
+      deltaX=(vx+vw/2)-(r.left+r.width/2);
+      deltaY=(vy+vh/2)-(r.top+r.height/2);
       if(prev) inner.style.transform=prev;
     }
     measure();
@@ -87,8 +92,11 @@
     function frameGame(){
       if(chatting) return;
       showFrame(Math.round(prog*(N-1)));
-      if(inner) inner.style.transform='translateY('+((1-prog)*delta).toFixed(1)+'px)';
-      if(hint) hint.style.opacity=1-smooth(rng(prog,0,0.12));
+      if(inner) inner.style.transform='translate3d('+((1-prog)*deltaX).toFixed(1)+'px,'+((1-prog)*deltaY).toFixed(1)+'px,0)';
+      if(hint){
+        hint.style.opacity=1-smooth(rng(prog,0,0.12));
+        hint.style.transform='translateX(-50%) translate3d('+((1-prog)*deltaX).toFixed(1)+'px,'+((1-prog)*deltaY).toFixed(1)+'px,0)';
+      }
       for(var i=0;i<phEls.length;i++){ var el=phEls[i],k=el.getAttribute('data-ph');
         if(k==='eyebrow') setPh(el,0.46,0.60); else if(k==='title') setPh(el,0.60,0.73); else if(k==='stage') setPh(el,0.74,0.90); else if(k==='nav') setPh(el,0.55,0.66); }
       var c=smooth(rng(prog,0.82,0.96));
