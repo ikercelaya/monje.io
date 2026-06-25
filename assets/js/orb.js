@@ -95,7 +95,7 @@
       if(inner) inner.style.transform='translate3d('+((1-prog)*deltaX).toFixed(1)+'px,'+((1-prog)*deltaY).toFixed(1)+'px,0)';
       if(hint){
         hint.style.opacity=1-smooth(rng(prog,0,0.12));
-        hint.style.transform='translateX(-50%) translate3d('+((1-prog)*deltaX).toFixed(1)+'px,'+((1-prog)*deltaY).toFixed(1)+'px,0)';
+        hint.style.transform='translateX(-50%)';
       }
       for(var i=0;i<phEls.length;i++){ var el=phEls[i],k=el.getAttribute('data-ph');
         if(k==='eyebrow') setPh(el,0.46,0.60); else if(k==='title') setPh(el,0.60,0.73); else if(k==='stage') setPh(el,0.74,0.90); else if(k==='nav') setPh(el,0.55,0.66); }
