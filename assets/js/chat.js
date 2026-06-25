@@ -98,13 +98,19 @@
     var ae=document.activeElement;
     if(ae && ae!==document.body && typeof ae.blur==='function'){ try{ ae.blur(); }catch(_){} }
   }
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
+  var lastSubmit=0;
+  function submitPrompt(e){
+    if(e) e.preventDefault();
     var v=input.value.trim(); if(!v) return;
+    if(Date.now()-lastSubmit<350) return;
+    lastSubmit=Date.now();
     input.value='';
     closeKB();
     handle(v,null);
-  });
+  }
+  form.addEventListener('submit',submitPrompt);
+  var sendBtn=form.querySelector('.send');
+  if(sendBtn) sendBtn.addEventListener('touchstart',submitPrompt,{passive:false});
   // En móvil, el ciclo touch → blur(input) → cambio de layout → click hacía que el primer toque
   // en un pill no enganchara. Disparamos en touchstart con preventDefault para cortar ese ciclo;
   // el click sigue activo en desktop.

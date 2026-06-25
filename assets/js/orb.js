@@ -145,14 +145,15 @@
     var vw=(vv&&vv.width)||window.innerWidth||document.documentElement.clientWidth||0;
     var vx=(vv&&vv.offsetLeft)||0;
     var side=mobile?16:0;
-    var dockW=Math.max(280,vw-side*2);
+    var maxDock=mobile?680:vw;
+    var dockW=Math.max(280,Math.min(vw-side*2,maxDock));
     var h=(keyboardActive && mobile && vv) ? vv.height : full;
     var top=(keyboardActive && mobile && vv) ? vv.offsetTop : 0;
     var bottom=(keyboardActive && mobile && vv) ? Math.max(0,full-h-top) : 0;
     html.style.setProperty('--vvt',top+'px');
     html.style.setProperty('--vvh',h+'px');
     html.style.setProperty('--vvb',bottom+'px');
-    html.style.setProperty('--dock-left',px(vx+side));
+    html.style.setProperty('--dock-left',px(vx+Math.max(side,(vw-dockW)/2)));
     html.style.setProperty('--dock-width',px(dockW));
     if(keyboardActive && mobile){
       var dock=document.querySelector('.chat-dock');
