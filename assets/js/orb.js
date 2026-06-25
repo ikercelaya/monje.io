@@ -131,6 +131,7 @@
   var vv=window.visualViewport;
   var keyboardActive=false;
   function px(n){return Math.round(n)+'px';}
+  function clampN(n,min,max){return Math.max(min,Math.min(max,n));}
   function isMobileChat(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches;}
   function lockPageTop(){
     if(!keyboardActive && !html.classList.contains('chatting')) return;
@@ -157,13 +158,10 @@
       var dock=document.querySelector('.chat-dock');
       var dockH=dock?dock.offsetHeight:160;
       html.style.setProperty('--dock-h',px(dockH));
-      var pad=0;                                      // pegado al borde superior del teclado
-      // dock anclado JUSTO encima del teclado (borde inferior del viewport visible)
-      var dockTop=top+h-dockH-pad;
-      var minDock=top+8;                              // evita salirse por arriba si el viewport es pequeño
-      if(dockTop<minDock) dockTop=minDock;
-      var chatTop=top+8;
-      var chatH=Math.max(48,dockTop-chatTop-6);
+      // Posición media visible: evita que iOS/WhatsApp tape el dock cuando el teclado se superpone.
+      var dockTop=clampN(top+Math.round(h*.56-dockH/2),top+150,top+h-dockH-12);
+      var chatTop=top+118;
+      var chatH=Math.max(56,dockTop-chatTop-8);
       html.style.setProperty('--dock-top',px(dockTop));
       html.style.setProperty('--chat-top',px(chatTop));
       html.style.setProperty('--chat-h',px(chatH));
