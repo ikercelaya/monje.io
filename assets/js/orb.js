@@ -37,6 +37,8 @@
     phEls.concat(corners,[inner,hint]).forEach(function(el){ if(el){ el.style.opacity=''; el.style.transform=''; el.style.pointerEvents=''; } });
     html.classList.remove('gamified'); html.classList.add('chatting');
     window.scrollTo(0,0);
+    document.body.scrollTop=0;
+    document.documentElement.scrollTop=0;
     showFrame(N-1);                 // cara formada en la cabecera
   };
 
@@ -129,26 +131,29 @@
   var vv=window.visualViewport;
   var keyboardActive=false;
   function px(n){return Math.round(n)+'px';}
+  function isMobileChat(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches;}
   function setVVH(){
-    var full=window.innerHeight;
-    var h=keyboardActive && vv ? vv.height : full;
-    var top=keyboardActive && vv?vv.offsetTop:0;
-    var bottom=keyboardActive && vv?Math.max(0,full-h-top):0;
-    if(keyboardActive && window.matchMedia('(max-width:760px)').matches && h>window.innerHeight*.72){
-      h=Math.round(full*.56);
-      top=0;
-      bottom=full-h;
-    }
+    var full=Math.max(window.innerHeight,document.documentElement.clientHeight||0);
+    var mobile=isMobileChat();
+    var vw=(vv&&vv.width)||window.innerWidth||document.documentElement.clientWidth||0;
+    var vx=(vv&&vv.offsetLeft)||0;
+    var side=mobile?16:0;
+    var dockW=Math.max(280,vw-side*2);
+    var h=(keyboardActive && mobile && vv) ? vv.height : full;
+    var top=(keyboardActive && mobile && vv) ? vv.offsetTop : 0;
+    var bottom=(keyboardActive && mobile && vv) ? Math.max(0,full-h-top) : 0;
     html.style.setProperty('--vvt',top+'px');
     html.style.setProperty('--vvh',h+'px');
     html.style.setProperty('--vvb',bottom+'px');
-    if(keyboardActive && window.matchMedia('(max-width:760px)').matches){
+    html.style.setProperty('--dock-left',px(vx+side));
+    html.style.setProperty('--dock-width',px(dockW));
+    if(keyboardActive && mobile){
       var dock=document.querySelector('.chat-dock');
       var dockH=dock?dock.offsetHeight:160;
-      var pad=6;                                      // pelín de aire sobre el teclado
+      var pad=0;                                      // pegado al borde superior del teclado
       // dock anclado JUSTO encima del teclado (borde inferior del viewport visible)
       var dockTop=top+h-dockH-pad;
-      var minDock=top+60;                             // que no se solape con la cabecera
+      var minDock=top+8;                              // evita salirse por arriba si el viewport es pequeño
       if(dockTop<minDock) dockTop=minDock;
       var chatTop=top+8;
       var chatH=Math.max(48,dockTop-chatTop-6);
@@ -176,15 +181,14 @@
   var promptEl=document.getElementById('prompt');
   if(promptEl){
     promptEl.addEventListener('focus',function(){
+      // en táctil (móvil/tablet): al tocar el input entramos ya al layout fijo de chat,
+      // así el teclado no descoloca la intro scrollable.
+      if(isMobileChat() && !html.classList.contains('chatting')) window.__monjeEnterChat();
       keyboardActive=true;
       html.classList.add('kb');
       settleVVH();
-      // en táctil (móvil/tablet): al tocar el input entramos ya al layout fijo de chat,
-      // así el teclado no descoloca la intro scrollable.
-      if((window.matchMedia('(max-width:760px)').matches || window.matchMedia('(pointer:coarse)').matches) && !html.classList.contains('chatting')) window.__monjeEnterChat();
       if(html.classList.contains('chatting')) window.scrollTo(0,0);
     });
     promptEl.addEventListener('blur',function(){ keyboardActive=false; html.classList.remove('kb'); settleVVH(); });
   }
 })();
-
