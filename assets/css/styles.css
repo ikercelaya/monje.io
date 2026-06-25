@@ -89,13 +89,13 @@
     html.chatting form.composer{flex:0 0 auto;width:100%}
     html.chatting form.composer input{min-width:0;font-size:16px}
     html.chatting.kb{height:100%;overflow:hidden;overscroll-behavior:none}
-    html.chatting.kb body{position:fixed;top:0;left:0;right:0;width:100vw;height:var(--vvh,100svh);overflow:hidden;touch-action:none}
-    html.chatting.kb .pin{top:var(--vvt,0px);height:var(--vvh,100svh);overflow:hidden}
-    html.chatting.kb #hero,html.chatting.kb .stage{height:var(--vvh,100svh);overflow:hidden}
-    /* con teclado abierto: dock anclado al borde superior del teclado (--dock-top calculado en orb.js),
-       chat arriba scrollable. Las variables las pone JS al detectar el teclado vía visualViewport. */
-    html.chatting.kb #chat{top:var(--chat-top,10px);bottom:auto;height:var(--chat-h,calc(50dvh - 100px));min-height:0;padding-bottom:6px;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch}
-    html.chatting.kb .chat-dock{top:var(--dock-top,auto);bottom:auto;transform:none;touch-action:auto}
+    html.chatting.kb body{position:fixed;top:0;left:0;right:0;width:100vw;height:100vh;height:100dvh;overflow:hidden;touch-action:none}
+    html.chatting.kb .pin{top:0;height:100vh;height:100dvh;overflow:hidden}
+    html.chatting.kb #hero,html.chatting.kb .stage{height:100vh;height:100dvh;overflow:hidden}
+    /* con teclado abierto: el navegador mueve el viewport visible; el dock se pega abajo y el chat
+       queda encima, sin cálculos verticales que Safari pueda dejar a media pantalla. */
+    html.chatting.kb #chat{top:10px;bottom:calc(var(--dock-h,150px) + 6px);height:auto;min-height:0;padding-bottom:6px;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+    html.chatting.kb .chat-dock{top:auto;bottom:0;transform:none;touch-action:auto}
     html.chatting.kb .pills{gap:6px;margin-bottom:7px}
     html.chatting.kb .pills .pill{min-height:36px;padding:5px 8px;border-radius:12px}
     html.chatting.kb .pill-ic{width:24px;height:24px}

@@ -132,6 +132,12 @@
   var keyboardActive=false;
   function px(n){return Math.round(n)+'px';}
   function isMobileChat(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches;}
+  function lockPageTop(){
+    if(!keyboardActive && !html.classList.contains('chatting')) return;
+    window.scrollTo(0,0);
+    document.body.scrollTop=0;
+    document.documentElement.scrollTop=0;
+  }
   function setVVH(){
     var full=Math.max(window.innerHeight,document.documentElement.clientHeight||0);
     var mobile=isMobileChat();
@@ -150,6 +156,7 @@
     if(keyboardActive && mobile){
       var dock=document.querySelector('.chat-dock');
       var dockH=dock?dock.offsetHeight:160;
+      html.style.setProperty('--dock-h',px(dockH));
       var pad=0;                                      // pegado al borde superior del teclado
       // dock anclado JUSTO encima del teclado (borde inferior del viewport visible)
       var dockTop=top+h-dockH-pad;
@@ -164,15 +171,17 @@
       html.style.removeProperty('--dock-top');
       html.style.removeProperty('--chat-top');
       html.style.removeProperty('--chat-h');
+      html.style.removeProperty('--dock-h');
     }
+    if(keyboardActive) lockPageTop();
   }
   function settleVVH(){
     setVVH();
-    requestAnimationFrame(setVVH);
-    setTimeout(setVVH,80);
-    setTimeout(setVVH,260);
-    setTimeout(setVVH,520);
-    setTimeout(setVVH,900);
+    requestAnimationFrame(function(){ setVVH(); lockPageTop(); });
+    setTimeout(function(){ setVVH(); lockPageTop(); },80);
+    setTimeout(function(){ setVVH(); lockPageTop(); },260);
+    setTimeout(function(){ setVVH(); lockPageTop(); },520);
+    setTimeout(function(){ setVVH(); lockPageTop(); },900);
   }
   setVVH();
   if(vv){ vv.addEventListener('resize',setVVH); vv.addEventListener('scroll',setVVH); }
@@ -186,8 +195,9 @@
       if(isMobileChat() && !html.classList.contains('chatting')) window.__monjeEnterChat();
       keyboardActive=true;
       html.classList.add('kb');
+      lockPageTop();
       settleVVH();
-      if(html.classList.contains('chatting')) window.scrollTo(0,0);
+      if(html.classList.contains('chatting')) lockPageTop();
     });
     promptEl.addEventListener('blur',function(){ keyboardActive=false; html.classList.remove('kb'); settleVVH(); });
   }
