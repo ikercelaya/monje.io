@@ -138,6 +138,7 @@
      para que el chat no se rompa, y ocultamos los CTAs flotantes mientras se escribe. --- */
   var vv=window.visualViewport;
   var keyboardActive=false;
+  var baseViewportH=0;
   function px(n){return Math.round(n)+'px';}
   function clampN(n,min,max){return Math.max(min,Math.min(max,n));}
   function isMobileChat(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches;}
@@ -148,14 +149,16 @@
     document.documentElement.scrollTop=0;
   }
   function setVVH(){
-    var full=Math.max(window.innerHeight,document.documentElement.clientHeight||0);
+    var layoutH=Math.max(window.innerHeight,document.documentElement.clientHeight||0);
     var mobile=isMobileChat();
     var vw=(vv&&vv.width)||window.innerWidth||document.documentElement.clientWidth||0;
     var vx=(vv&&vv.offsetLeft)||0;
     var side=mobile?16:0;
     var maxDock=mobile?680:vw;
     var dockW=Math.max(280,Math.min(vw-side*2,maxDock));
-    var h=(keyboardActive && mobile && vv) ? vv.height : full;
+    if(!keyboardActive || !mobile) baseViewportH=Math.max(baseViewportH,layoutH,(vv&&vv.height)||0);
+    var full=(keyboardActive && mobile && baseViewportH) ? Math.max(layoutH,baseViewportH) : layoutH;
+    var h=(keyboardActive && mobile && vv) ? vv.height : layoutH;
     var top=(keyboardActive && mobile && vv) ? vv.offsetTop : 0;
     var bottom=(keyboardActive && mobile && vv) ? Math.max(0,full-h-top) : 0;
     html.style.setProperty('--vvt',top+'px');
@@ -167,8 +170,12 @@
       var dock=document.querySelector('.chat-dock');
       var dockH=dock?dock.offsetHeight:160;
       html.style.setProperty('--dock-h',px(dockH));
-      // Posición media visible: evita que iOS/WhatsApp tape el dock cuando el teclado se superpone.
-      var dockTop=clampN(top+Math.round(h*.56-dockH/2),top+150,top+h-dockH-12);
+      // Si el viewport se reduce por teclado, dock abajo sin hueco blanco; si se superpone, fallback medio.
+      var visibleBottom=top+h;
+      var keyboardDelta=Math.max(bottom,baseViewportH ? baseViewportH-h-top : 0);
+      var dockTop=keyboardDelta>80
+        ? clampN(visibleBottom-dockH-8,top+118,visibleBottom-dockH-6)
+        : clampN(top+Math.round(h*.56-dockH/2),top+150,top+h-dockH-12);
       var chatTop=top+118;
       var chatH=Math.max(56,dockTop-chatTop-8);
       html.style.setProperty('--dock-top',px(dockTop));
