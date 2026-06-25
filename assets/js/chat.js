@@ -77,6 +77,7 @@
   async function handle(text,key){
     if(busy||!text) return; busy=true;
     add(text,'user');
+    closeKB();
     history.push({role:'user',content:text});
     var turn=stage;
     var d=typing(),t0=Date.now();
@@ -94,9 +95,14 @@
   function isTouch(){return window.matchMedia('(max-width:760px)').matches||window.matchMedia('(pointer:coarse)').matches;}
   function closeKB(){
     if(!isTouch()) return;
-    try{ input.blur(); }catch(_){}
+    try{
+      input.setAttribute('readonly','readonly');
+      input.blur();
+      setTimeout(function(){ input.removeAttribute('readonly'); },160);
+    }catch(_){}
     var ae=document.activeElement;
     if(ae && ae!==document.body && typeof ae.blur==='function'){ try{ ae.blur(); }catch(_){} }
+    setTimeout(function(){ try{ input.blur(); }catch(_){} },50);
   }
   var lastSubmit=0;
   function submitPrompt(e){
